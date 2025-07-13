@@ -44,8 +44,8 @@ const CRYPTO_CONFIG = [
     id: "wemix",
     name: "WEMIX",
     symbol: "WEMIX",
-    amount: 22.39,
-    displayAmount: "24,39",
+    amount: 39.39,
+    displayAmount: "43,39",
     coingeckoId: "wemix-token",
     basePrice: 4.5, // Preço base para simulação
   },

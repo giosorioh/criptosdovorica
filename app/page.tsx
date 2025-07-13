@@ -12,8 +12,6 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
-  Zap,
-  Globe,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -390,11 +388,11 @@ export default function Component() {
     }
   }, [updateCryptoData, loadFromCache])
 
-  // Atualização automática a cada 3 minutos
+  // Atualização automática a cada 2 minutos
   useEffect(() => {
     const interval = setInterval(() => {
       updateCryptoData(false)
-    }, 180000) // 3 minutos
+    }, 120000) // 2 minutos
 
     return () => clearInterval(interval)
   }, [updateCryptoData])
@@ -424,9 +422,7 @@ ${formatCurrency(totalPortfolioValue)}
 • Valor Total: ${formatCurrency(bitcoinData?.totalValue || 0)}
 • Variação 24h: ${bitcoinData?.price_change_percentage_24h.toFixed(2)}%
 
-🕐 Última atualização: ${connectionStatus.lastUpdate ? formatTime(connectionStatus.lastUpdate) : "N/A"}
-
-📈 Dados em tempo real!`
+🕐 Última atualização: ${connectionStatus.lastUpdate ? formatTime(connectionStatus.lastUpdate) : "N/A"}`
 
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`
@@ -440,29 +436,17 @@ ${formatCurrency(totalPortfolioValue)}
 
   if (connectionStatus.isLoading && cryptoData.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="relative mb-8">
-            <div className="animate-spin rounded-full h-32 w-32 border-4 border-gray-800 border-t-cyan-400 mx-auto"></div>
+          <div className="relative">
+            <div className="animate-spin rounded-full h-32 w-32 border-4 border-gray-800 border-t-cyan-400 mx-auto mb-4"></div>
             <div className="absolute inset-0 rounded-full h-32 w-32 border-4 border-gray-800 border-r-purple-400 animate-pulse mx-auto"></div>
-            <div className="absolute inset-0 rounded-full h-32 w-32 border-4 border-gray-800 border-b-green-400 animate-ping opacity-20 mx-auto"></div>
           </div>
-          <div className="space-y-4">
-            <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 bg-clip-text text-transparent font-mono">
-              CARREGANDO...
-            </p>
-            <div className="flex justify-center space-x-2">
-              <div className="w-3 h-3 bg-cyan-400 rounded-full animate-bounce"></div>
-              <div
-                className="w-3 h-3 bg-purple-400 rounded-full animate-bounce"
-                style={{ animationDelay: "0.1s" }}
-              ></div>
-              <div
-                className="w-3 h-3 bg-green-400 rounded-full animate-bounce"
-                style={{ animationDelay: "0.2s" }}
-              ></div>
-            </div>
-            <p className="text-gray-400 font-mono text-sm">Conectando com APIs de criptomoedas...</p>
+          <p className="text-cyan-400 text-xl font-mono">CARREGANDO DADOS...</p>
+          <div className="flex justify-center mt-4 space-x-1">
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
           </div>
         </div>
       </div>
@@ -470,253 +454,201 @@ ${formatCurrency(totalPortfolioValue)}
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
-      {/* Enhanced Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-cyan-500/20 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-pink-500/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-green-500/10 to-emerald-500/5 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
+    <div className="min-h-screen bg-black text-white">
+      {/* Floating Share Button */}
+      <Button
+        onClick={shareToWhatsApp}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:scale-110"
+        size="icon"
+      >
+        <Share2 className="h-6 w-6" />
+      </Button>
 
-        {/* Floating particles */}
-        <div className="absolute top-20 left-20 w-2 h-2 bg-cyan-400 rounded-full animate-ping opacity-60"></div>
-        <div
-          className="absolute top-40 right-32 w-1 h-1 bg-purple-400 rounded-full animate-ping opacity-40"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div
-          className="absolute bottom-32 left-1/4 w-1.5 h-1.5 bg-green-400 rounded-full animate-ping opacity-50"
-          style={{ animationDelay: "2s" }}
-        ></div>
-        <div
-          className="absolute bottom-20 right-20 w-1 h-1 bg-blue-400 rounded-full animate-ping opacity-30"
-          style={{ animationDelay: "3s" }}
-        ></div>
-      </div>
+      {/* Floating Refresh Button */}
+      <Button
+        onClick={handleManualRefresh}
+        disabled={connectionStatus.isLoading}
+        className="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-110 disabled:opacity-50"
+        size="icon"
+      >
+        <RefreshCw className={`h-6 w-6 ${connectionStatus.isLoading ? "animate-spin" : ""}`} />
+      </Button>
 
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col space-y-4">
-        <Button
-          onClick={shareToWhatsApp}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 hover:from-green-400 hover:via-green-500 hover:to-emerald-500 shadow-2xl hover:shadow-green-500/30 transition-all duration-300 hover:scale-110 group"
-          size="icon"
-        >
-          <Share2 className="h-7 w-7 group-hover:rotate-12 transition-transform duration-300" />
-        </Button>
-
-        <Button
-          onClick={handleManualRefresh}
-          disabled={connectionStatus.isLoading}
-          className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-600 hover:from-blue-400 hover:via-blue-500 hover:to-cyan-500 shadow-2xl hover:shadow-blue-500/30 transition-all duration-300 hover:scale-110 disabled:opacity-50 group"
-          size="icon"
-        >
-          <RefreshCw
-            className={`h-7 w-7 transition-transform duration-300 ${connectionStatus.isLoading ? "animate-spin" : "group-hover:rotate-180"}`}
-          />
-        </Button>
-      </div>
-
-      {/* Enhanced Connection Status */}
-      <div className="fixed top-6 right-6 z-40">
+      {/* Connection Status */}
+      <div className="fixed top-4 right-4 z-40">
         <div
-          className={`flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-mono backdrop-blur-md border transition-all duration-300 ${
+          className={`flex items-center space-x-2 px-3 py-2 rounded-full text-xs font-mono ${
             connectionStatus.isOnline
-              ? "bg-green-500/10 text-green-400 border-green-500/30 shadow-lg shadow-green-500/10"
-              : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30 shadow-lg shadow-yellow-500/10"
+              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+              : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
           }`}
         >
-          <div className="relative">
-            {connectionStatus.isLoading ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : connectionStatus.isOnline ? (
-              <div className="relative">
-                <Wifi className="h-4 w-4" />
-                <div className="absolute inset-0 h-4 w-4 animate-ping opacity-30">
-                  <Wifi className="h-4 w-4" />
-                </div>
-              </div>
-            ) : (
-              <WifiOff className="h-4 w-4" />
-            )}
-          </div>
-          <span className="font-semibold">
-            {connectionStatus.isLoading ? "ATUALIZANDO..." : connectionStatus.isOnline ? "ONLINE" : "CACHE"}
-          </span>
+          {connectionStatus.isLoading ? (
+            <RefreshCw className="h-3 w-3 animate-spin" />
+          ) : connectionStatus.isOnline ? (
+            <Wifi className="h-3 w-3" />
+          ) : (
+            <WifiOff className="h-3 w-3" />
+          )}
+          <span>{connectionStatus.isLoading ? "ATUALIZANDO..." : connectionStatus.isOnline ? "ONLINE" : "CACHE"}</span>
         </div>
         {connectionStatus.lastUpdate && (
-          <div className="text-xs text-gray-400 text-center mt-2 font-mono bg-black/20 px-2 py-1 rounded-lg backdrop-blur-sm">
+          <div className="text-xs text-gray-400 text-center mt-1 font-mono">
             {formatTime(connectionStatus.lastUpdate)}
           </div>
         )}
         {connectionStatus.error && (
-          <div className="text-xs text-yellow-400 text-center mt-2 font-mono max-w-48 bg-yellow-500/10 px-2 py-1 rounded-lg backdrop-blur-sm border border-yellow-500/20">
-            {connectionStatus.error}
-          </div>
+          <div className="text-xs text-yellow-400 text-center mt-1 font-mono max-w-48">{connectionStatus.error}</div>
         )}
       </div>
 
-      {/* Enhanced Header */}
-      <header className="relative z-10 border-b border-gray-800/50 backdrop-blur-xl bg-black/20">
-        <div className="container mx-auto px-6 py-12">
-          <div className="flex items-center justify-center mb-8">
-            <div className="relative mr-6">
-              <div className="relative">
-                <Coins className="h-16 w-16 text-cyan-400 animate-pulse" />
-                <div className="absolute inset-0 h-16 w-16 text-cyan-400 animate-ping opacity-20">
-                  <Coins className="h-16 w-16" />
-                </div>
-              </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center">
-                <Zap className="h-3 w-3 text-black" />
+      {/* Animated Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/5 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 border-b border-gray-800/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative">
+              <Coins className="h-12 w-12 text-cyan-400 mr-4 animate-pulse" />
+              <div className="absolute inset-0 h-12 w-12 text-cyan-400 mr-4 animate-ping opacity-20">
+                <Coins className="h-12 w-12" />
               </div>
             </div>
-            <div className="text-center">
-              <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 bg-clip-text text-transparent mb-2 tracking-tight">
-                CRIPTOS DO VÔ RICA
-              </h1>
-              <p className="text-gray-400 font-mono text-lg">Portfolio de Criptomoedas em Tempo Real</p>
-            </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 bg-clip-text text-transparent">
+              CRIPTOS DO VÔ RICA
+            </h1>
           </div>
           <div className="text-center">
-            <Badge className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 text-blue-300 border-blue-500/30 font-mono text-sm px-4 py-2 backdrop-blur-sm">
-              <Globe className="h-4 w-4 mr-2" />
-              ATUALIZAÇÃO A CADA 3 MIN
+            <Badge className="bg-blue-800/50 text-blue-300 border-blue-700 font-mono">
+              DADOS REAIS - ATUALIZAÇÃO A CADA 2 MIN
             </Badge>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 container mx-auto px-6 py-16">
+      <main className="relative z-10 container mx-auto px-4 py-12">
         {!selectedCrypto ? (
           <>
-            {/* Enhanced Portfolio Overview */}
-            <div className="mb-16">
-              <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/50 to-gray-900/80 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/60 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/10 group">
-                <CardHeader className="text-center pb-6">
-                  <CardTitle className="text-4xl font-mono text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text mb-2">
-                    PORTFOLIO TOTAL
-                  </CardTitle>
-                  <div className="w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 mx-auto rounded-full"></div>
+            {/* Portfolio Overview */}
+            <div className="mb-12">
+              <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:bg-gray-900/70 transition-all duration-300">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-3xl font-mono text-cyan-400">PORTFOLIO TOTAL</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <p className="text-7xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-6 tracking-tight group-hover:scale-105 transition-transform duration-300">
+                    <p className="text-6xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent mb-4">
                       {formatCurrency(totalPortfolioValue)}
                     </p>
                     {connectionStatus.lastUpdate && (
-                      <div className="flex items-center justify-center space-x-2 text-gray-400 font-mono">
-                        <Activity className="h-4 w-4 animate-pulse" />
-                        <span>Última atualização: {formatTime(connectionStatus.lastUpdate)}</span>
-                      </div>
+                      <p className="text-sm text-gray-400 font-mono">
+                        Última atualização: {formatTime(connectionStatus.lastUpdate)}
+                      </p>
                     )}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Enhanced Crypto Cards */}
-            <div className="grid md:grid-cols-2 gap-10 max-w-7xl mx-auto">
-              {cryptoData.map((crypto, index) => {
+            {/* Crypto Cards */}
+            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {cryptoData.map((crypto) => {
                 const isPositive = crypto.price_change_percentage_24h >= 0
 
                 return (
                   <Card
                     key={crypto.id}
-                    className="bg-gradient-to-br from-gray-900/60 via-gray-800/40 to-gray-900/60 border-gray-700/50 backdrop-blur-xl hover:bg-gray-800/50 transition-all duration-500 hover:scale-[1.02] hover:border-cyan-500/50 group relative overflow-hidden shadow-2xl"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="bg-gray-900/30 border-gray-800 backdrop-blur-sm hover:bg-gray-900/50 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 group relative"
                   >
-                    {/* Enhanced Live indicator */}
-                    <div className="absolute top-6 right-6 flex items-center space-x-2">
+                    {/* Live indicator */}
+                    <div className="absolute top-4 right-4">
                       <div
-                        className={`w-3 h-3 rounded-full ${
+                        className={`w-2 h-2 rounded-full ${
                           connectionStatus.isOnline ? "bg-green-400 animate-pulse" : "bg-yellow-400 animate-pulse"
                         }`}
                       ></div>
-                      <span className="text-xs font-mono text-gray-400">LIVE</span>
                     </div>
 
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    <CardHeader className="pb-6 relative z-10">
+                    <CardHeader className="pb-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-3">
                           {crypto.symbol === "BTC" ? (
                             <div className="relative">
-                              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <Bitcoin className="h-10 w-10 text-white" />
+                              <Bitcoin className="h-10 w-10 text-orange-400 group-hover:text-orange-300 transition-colors" />
+                              <div className="absolute inset-0 h-10 w-10 text-orange-400 animate-pulse opacity-30">
+                                <Bitcoin className="h-10 w-10" />
                               </div>
-                              <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl animate-pulse opacity-20"></div>
                             </div>
                           ) : (
                             <div className="relative">
-                              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                <Coins className="h-10 w-10 text-white" />
+                              <Coins className="h-10 w-10 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                              <div className="absolute inset-0 h-10 w-10 text-purple-400 animate-pulse opacity-30">
+                                <Coins className="h-10 w-10" />
                               </div>
-                              <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl animate-pulse opacity-20"></div>
                             </div>
                           )}
                           <div>
-                            <CardTitle className="text-3xl font-mono text-white group-hover:text-cyan-400 transition-colors duration-300">
+                            <CardTitle className="text-2xl font-mono text-white group-hover:text-cyan-400 transition-colors">
                               {crypto.name}
                             </CardTitle>
-                            <CardDescription className="text-gray-400 font-mono text-lg">
-                              {crypto.symbol}
-                            </CardDescription>
+                            <CardDescription className="text-gray-400 font-mono">{crypto.symbol}</CardDescription>
                           </div>
                         </div>
                         <Badge
-                          className={`flex items-center space-x-2 font-mono text-sm px-4 py-2 rounded-xl backdrop-blur-sm ${
+                          className={`flex items-center space-x-1 font-mono ${
                             isPositive
                               ? "bg-green-500/20 text-green-400 border-green-500/30"
                               : "bg-red-500/20 text-red-400 border-red-500/30"
                           }`}
                         >
-                          {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                          {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           <span>{crypto.price_change_percentage_24h.toFixed(2)}%</span>
                         </Badge>
                       </div>
                     </CardHeader>
 
-                    <CardContent className="space-y-8 relative z-10">
-                      <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                          <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 p-6 rounded-2xl border border-gray-600/30 backdrop-blur-sm hover:bg-gray-700/50 transition-all duration-300">
-                            <p className="text-gray-400 text-sm mb-2 font-mono uppercase tracking-wide">Preço Atual</p>
-                            <p className="text-3xl font-bold text-cyan-400 font-mono">
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <p className="text-gray-400 text-sm mb-1 font-mono">PREÇO ATUAL</p>
+                            <p className="text-2xl font-bold text-cyan-400 font-mono">
                               {formatCurrency(crypto.current_price)}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-gray-800/60 to-gray-700/40 p-6 rounded-2xl border border-gray-600/30 backdrop-blur-sm hover:bg-gray-700/50 transition-all duration-300">
-                            <p className="text-gray-400 text-sm mb-2 font-mono uppercase tracking-wide">Quantidade</p>
-                            <p className="text-xl font-semibold text-white font-mono">{crypto.displayAmount}</p>
+                          <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                            <p className="text-gray-400 text-sm mb-1 font-mono">QUANTIDADE</p>
+                            <p className="text-lg font-semibold text-white font-mono">{crypto.displayAmount}</p>
                           </div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-gray-800/80 via-gray-700/60 to-gray-800/80 p-8 rounded-2xl border border-gray-600/40 backdrop-blur-sm relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/5 opacity-50"></div>
-                          <div className="relative z-10">
-                            <p className="text-gray-400 text-sm mb-3 font-mono uppercase tracking-wide">Valor Total</p>
-                            <p className="text-4xl font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text font-mono">
-                              {formatCurrency(crypto.totalValue)}
-                            </p>
-                          </div>
+                        <div className="bg-gradient-to-r from-gray-800/50 to-gray-700/50 p-4 rounded-lg border border-gray-600">
+                          <p className="text-gray-400 text-sm mb-1 font-mono">VALOR TOTAL</p>
+                          <p className="text-3xl font-bold text-green-400 font-mono">
+                            {formatCurrency(crypto.totalValue)}
+                          </p>
                         </div>
                       </div>
 
                       <Button
                         onClick={() => setSelectedCrypto(crypto.id)}
-                        className="w-full bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-500 hover:via-blue-500 hover:to-purple-500 text-white font-mono font-semibold py-6 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/25 group"
+                        className="w-full bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-mono font-semibold py-4 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/25"
                         size="lg"
                       >
-                        <BarChart3 className="h-6 w-6 mr-3 group-hover:rotate-12 transition-transform duration-300" />
-                        VER DETALHES {crypto.name}
+                        <BarChart3 className="h-5 w-5 mr-2" />
+                        VER {crypto.name}
                       </Button>
                     </CardContent>
                   </Card>
@@ -734,23 +666,11 @@ ${formatCurrency(totalPortfolioValue)}
         )}
       </main>
 
-      {/* Enhanced Footer */}
-      <footer className="relative z-10 mt-20 py-12 text-center border-t border-gray-800/50 backdrop-blur-xl bg-black/20">
-        <div className="font-mono space-y-4">
-          <p className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            © 2025 CRIPTOS DO VÔ RICA
-          </p>
-          <div className="flex items-center justify-center space-x-4 text-gray-400">
-            <div className="flex items-center space-x-2">
-              <Globe className="h-4 w-4" />
-              <span className="text-sm">Dados via CryptoCompare & CoinCap APIs</span>
-            </div>
-            <div className="w-1 h-1 bg-gray-600 rounded-full"></div>
-            <div className="flex items-center space-x-2">
-              <Zap className="h-4 w-4" />
-              <span className="text-sm">Tempo Real</span>
-            </div>
-          </div>
+      {/* Footer */}
+      <footer className="relative z-10 mt-16 py-8 text-center text-gray-500 border-t border-gray-800/50">
+        <div className="font-mono">
+          <p>© 2025 CRIPTOS DO VÔ RICA</p>
+          <p className="text-xs mt-2">Dados reais via CryptoCompare & CoinCap APIs</p>
         </div>
       </footer>
     </div>
@@ -772,138 +692,123 @@ function CryptoDetailView({
   )
 
   return (
-    <div className="space-y-10">
-      {/* Enhanced Back Button */}
+    <div className="space-y-8">
+      {/* Back Button */}
       <Button
         onClick={onBack}
         variant="outline"
-        className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white font-mono bg-transparent backdrop-blur-sm px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105"
+        className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white font-mono bg-transparent"
       >
-        ← VOLTAR AO PORTFOLIO
+        ← VOLTAR
       </Button>
 
-      {/* Enhanced Crypto Header */}
-      <div className="text-center mb-12">
-        <div className="flex items-center justify-center mb-8">
+      {/* Crypto Header */}
+      <div className="text-center mb-8">
+        <div className="flex items-center justify-center mb-4">
           {crypto.symbol === "BTC" ? (
-            <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-3xl flex items-center justify-center mr-6">
-              <Bitcoin className="h-16 w-16 text-white" />
-            </div>
+            <Bitcoin className="h-16 w-16 text-orange-400 mr-4" />
           ) : (
-            <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mr-6">
-              <Coins className="h-16 w-16 text-white" />
-            </div>
+            <Coins className="h-16 w-16 text-purple-400 mr-4" />
           )}
           <div>
-            <h1 className="text-6xl font-bold font-mono text-white mb-2">{crypto.name}</h1>
-            <p className="text-2xl text-gray-400 font-mono">{crypto.symbol}</p>
+            <h1 className="text-4xl font-bold font-mono text-white">{crypto.name}</h1>
+            <p className="text-xl text-gray-400 font-mono">{crypto.symbol}</p>
           </div>
           <div
-            className={`ml-6 w-4 h-4 rounded-full ${
+            className={`ml-4 w-3 h-3 rounded-full ${
               connectionStatus.isOnline ? "bg-green-400 animate-pulse" : "bg-yellow-400 animate-pulse"
             }`}
           ></div>
         </div>
-        <div className="text-7xl font-bold text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text font-mono mb-4">
-          {formatCurrency(crypto.current_price)}
-        </div>
+        <div className="text-5xl font-bold text-cyan-400 font-mono mb-2">{formatCurrency(crypto.current_price)}</div>
         <Badge
-          className={`text-xl px-6 py-3 font-mono rounded-2xl backdrop-blur-sm ${
+          className={`text-lg px-4 py-2 font-mono ${
             crypto.price_change_percentage_24h >= 0
               ? "bg-green-500/20 text-green-400 border-green-500/30"
               : "bg-red-500/20 text-red-400 border-red-500/30"
           }`}
         >
           {crypto.price_change_percentage_24h >= 0 ? (
-            <TrendingUp className="h-5 w-5 mr-3" />
+            <TrendingUp className="h-4 w-4 mr-2" />
           ) : (
-            <TrendingDown className="h-5 w-5 mr-3" />
+            <TrendingDown className="h-4 w-4 mr-2" />
           )}
           {crypto.price_change_percentage_24h.toFixed(2)}% (24h)
         </Badge>
         {connectionStatus.lastUpdate && (
-          <p className="text-gray-400 font-mono mt-4 flex items-center justify-center space-x-2">
-            <Activity className="h-4 w-4" />
-            <span>Última atualização: {formatTime(connectionStatus.lastUpdate)}</span>
+          <p className="text-sm text-gray-400 font-mono mt-2">
+            Última atualização: {formatTime(connectionStatus.lastUpdate)}
           </p>
         )}
       </div>
 
-      {/* Enhanced Stats Cards */}
-      <div className="grid md:grid-cols-3 gap-8 mb-12">
-        <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-mono text-gray-400 uppercase tracking-wide">Quantidade</CardTitle>
+      {/* Stats Cards */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-gray-400">QUANTIDADE</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-white font-mono">
+            <p className="text-2xl font-bold text-white font-mono">
               {crypto.displayAmount} {crypto.symbol}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-mono text-gray-400 uppercase tracking-wide">Valor Total</CardTitle>
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-gray-400">VALOR TOTAL</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text font-mono">
-              {formatCurrency(crypto.totalValue)}
-            </p>
+            <p className="text-2xl font-bold text-green-400 font-mono">{formatCurrency(crypto.totalValue)}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/50 backdrop-blur-xl">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-sm font-mono text-gray-400 uppercase tracking-wide">Status</CardTitle>
+        <Card className="bg-gray-900/50 border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono text-gray-400">STATUS</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <div
-                className={`w-4 h-4 rounded-full ${
+                className={`w-3 h-3 rounded-full ${
                   connectionStatus.isOnline ? "bg-green-400 animate-pulse" : "bg-yellow-400 animate-pulse"
                 }`}
               ></div>
-              <span className={`font-mono text-lg ${connectionStatus.isOnline ? "text-green-400" : "text-yellow-400"}`}>
-                {connectionStatus.isOnline ? "ONLINE" : "CACHE"}
+              <span className={`font-mono ${connectionStatus.isOnline ? "text-green-400" : "text-yellow-400"}`}>
+                {connectionStatus.isOnline ? "ATIVO" : "CACHE"}
               </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Enhanced Charts */}
+      {/* Charts */}
       <Tabs defaultValue="price" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-gray-900/50 border-gray-800 backdrop-blur-xl rounded-2xl p-2">
-          <TabsTrigger
-            value="price"
-            className="font-mono data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-600 data-[state=active]:to-blue-600 rounded-xl py-3"
-          >
+        <TabsList className="grid w-full grid-cols-2 bg-gray-900/50 border-gray-800">
+          <TabsTrigger value="price" className="font-mono data-[state=active]:bg-cyan-600">
             GRÁFICO DE PREÇO
           </TabsTrigger>
-          <TabsTrigger
-            value="volume"
-            className="font-mono data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 rounded-xl py-3"
-          >
+          <TabsTrigger value="volume" className="font-mono data-[state=active]:bg-purple-600">
             VOLUME
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="price" className="mt-8">
-          <Card className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 border-gray-700/50 backdrop-blur-xl">
+        <TabsContent value="price" className="mt-6">
+          <Card className="bg-gray-900/30 border-gray-800">
             <CardHeader>
-              <CardTitle className="font-mono text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text flex items-center text-xl">
-                <Activity className="h-6 w-6 mr-3" />
+              <CardTitle className="font-mono text-cyan-400 flex items-center">
+                <Activity className="h-5 w-5 mr-2" />
                 HISTÓRICO DE PREÇOS (30 DIAS)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-96">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
                         <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
                       </linearGradient>
                     </defs>
@@ -919,9 +824,8 @@ function CryptoDetailView({
                       contentStyle={{
                         backgroundColor: "#1f2937",
                         border: "1px solid #374151",
-                        borderRadius: "12px",
+                        borderRadius: "8px",
                         fontFamily: "monospace",
-                        backdropFilter: "blur(12px)",
                       }}
                       formatter={(value: any) => [formatCurrency(value), "Preço"]}
                     />
@@ -929,7 +833,7 @@ function CryptoDetailView({
                       type="monotone"
                       dataKey="price"
                       stroke="#06b6d4"
-                      strokeWidth={3}
+                      strokeWidth={2}
                       fillOpacity={1}
                       fill="url(#colorPrice)"
                     />
@@ -940,21 +844,21 @@ function CryptoDetailView({
           </Card>
         </TabsContent>
 
-        <TabsContent value="volume" className="mt-8">
-          <Card className="bg-gradient-to-br from-gray-900/60 to-gray-800/40 border-gray-700/50 backdrop-blur-xl">
+        <TabsContent value="volume" className="mt-6">
+          <Card className="bg-gray-900/30 border-gray-800">
             <CardHeader>
-              <CardTitle className="font-mono text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text flex items-center text-xl">
-                <BarChart3 className="h-6 w-6 mr-3" />
+              <CardTitle className="font-mono text-purple-400 flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2" />
                 VOLUME DE NEGOCIAÇÃO
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-96">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorVolume" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.4} />
+                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} />
                         <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
                       </linearGradient>
                     </defs>
@@ -970,9 +874,8 @@ function CryptoDetailView({
                       contentStyle={{
                         backgroundColor: "#1f2937",
                         border: "1px solid #374151",
-                        borderRadius: "12px",
+                        borderRadius: "8px",
                         fontFamily: "monospace",
-                        backdropFilter: "blur(12px)",
                       }}
                       formatter={(value: any) => [`${(value / 1000000).toFixed(2)}M`, "Volume"]}
                     />
@@ -980,7 +883,7 @@ function CryptoDetailView({
                       type="monotone"
                       dataKey="volume"
                       stroke="#a855f7"
-                      strokeWidth={3}
+                      strokeWidth={2}
                       fillOpacity={1}
                       fill="url(#colorVolume)"
                     />

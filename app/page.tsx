@@ -44,7 +44,7 @@ const CRYPTO_CONFIG = [
     id: "wemix",
     name: "WEMIX",
     symbol: "WEMIX",
-    amount: 26.39,
+    amount: 26.00,
     displayAmount: "26,39",
     coinCapId: "wemix-token",
     cryptoCompareSymbol: "WEMIX",

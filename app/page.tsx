@@ -12,6 +12,7 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
+  Zap,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -44,23 +45,31 @@ const CRYPTO_CONFIG = [
     id: "wemix",
     name: "WEMIX",
     symbol: "WEMIX",
-    amount: 22.00,
+    amount: 22.0,
     displayAmount: "26,39",
     coinCapId: "wemix-token",
     cryptoCompareSymbol: "WEMIX",
   },
   {
     id: "bitcoin",
-    name: "BITCOIN",
+    name: "Bitcoin",
     symbol: "BTC",
     amount: 0.0000756,
     displayAmount: "0,0000756",
     coinCapId: "bitcoin",
     cryptoCompareSymbol: "BTC",
   },
+  {
+    id: "ethereum",
+    name: "Ethereum",
+    symbol: "ETH",
+    amount: 0.0021,
+    displayAmount: "0,0023",
+    coinCapId: "ethereum",
+    cryptoCompareSymbol: "ETH",
+  },
 ]
 
-// Dados simulados para os gráficos
 const generateChartData = (basePrice: number, volatility = 0.1) => {
   const data = []
   const now = new Date()
@@ -102,7 +111,6 @@ const formatTime = (dateString: string) => {
   })
 }
 
-// Função para buscar cotação USD/BRL
 const fetchUsdToBrl = async (): Promise<number> => {
   try {
     const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD", {
@@ -117,16 +125,13 @@ const fetchUsdToBrl = async (): Promise<number> => {
   }
 }
 
-// Função para buscar dados reais usando CryptoCompare API
 const fetchRealCryptoData = async (): Promise<any> => {
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
 
-    // Buscar cotação USD/BRL
     const usdToBrl = await fetchUsdToBrl()
 
-    // Buscar dados das criptomoedas via CryptoCompare
     const symbols = CRYPTO_CONFIG.map((crypto) => crypto.cryptoCompareSymbol).join(",")
     const response = await fetch(`https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${symbols}&tsyms=USD`, {
       signal: controller.signal,
@@ -169,7 +174,6 @@ const fetchRealCryptoData = async (): Promise<any> => {
   }
 }
 
-// API alternativa usando CoinCap
 const fetchAlternativeAPI = async (): Promise<any> => {
   try {
     const controller = new AbortController()
@@ -177,7 +181,6 @@ const fetchAlternativeAPI = async (): Promise<any> => {
 
     const usdToBrl = await fetchUsdToBrl()
 
-    // Buscar Bitcoin
     const btcResponse = await fetch("https://api.coincap.io/v2/assets/bitcoin", {
       signal: controller.signal,
       headers: { Accept: "application/json" },
@@ -197,10 +200,15 @@ const fetchAlternativeAPI = async (): Promise<any> => {
         market_cap: Number.parseFloat(btcData.data.marketCapUsd) * usdToBrl || 0,
       },
       "wemix-token": {
-        // Para WEMIX, usar preço simulado baseado em dados reais aproximados
-        brl: (4.2 + Math.random() * 0.6) * usdToBrl, // Entre $4.2-4.8 USD
-        brl_24h_change: (Math.random() - 0.5) * 15, // ±7.5%
+        brl: (4.2 + Math.random() * 0.6) * usdToBrl,
+        brl_24h_change: (Math.random() - 0.5) * 15,
         volume: Math.random() * 10000000 + 5000000,
+        market_cap: 0,
+      },
+      ethereum: {
+        brl: (1500 + Math.random() * 500) * usdToBrl,
+        brl_24h_change: (Math.random() - 0.5) * 10,
+        volume: Math.random() * 100000000 + 50000000,
         market_cap: 0,
       },
     }
@@ -213,7 +221,6 @@ const fetchAlternativeAPI = async (): Promise<any> => {
   }
 }
 
-// Dados padrão como fallback
 const getDefaultData = (): CryptoData[] => {
   const now = new Date().toISOString()
   return [
@@ -230,13 +237,24 @@ const getDefaultData = (): CryptoData[] => {
     },
     {
       id: "bitcoin",
-      name: "BITCOIN",
+      name: "Bitcoin",
       symbol: "BTC",
       current_price: 580000,
       price_change_percentage_24h: -2.34,
-      amount: 0.0000935,
-      displayAmount: "0,0000935",
-      totalValue: 580000 * 0.0000935,
+      amount: 0.00000001,
+      displayAmount: "0,00000001",
+      totalValue: 580000 * 0.00000001,
+      lastUpdated: now,
+    },
+    {
+      id: "ethereum",
+      name: "Ethereum",
+      symbol: "ETH",
+      current_price: 1500,
+      price_change_percentage_24h: 3.45,
+      amount: 0.0023,
+      displayAmount: "0,0023",
+      totalValue: 1500 * 0.0023,
       lastUpdated: now,
     },
   ]
@@ -252,10 +270,8 @@ export default function Component() {
     error: null,
   })
 
-  // Memoizar para evitar recriação
   const cryptos = useMemo(() => CRYPTO_CONFIG, [])
 
-  // Função para salvar no cache
   const saveToCache = useCallback((data: CryptoData[]) => {
     try {
       localStorage.setItem("cryptoData", JSON.stringify(data))
@@ -265,7 +281,6 @@ export default function Component() {
     }
   }, [])
 
-  // Função para carregar do cache
   const loadFromCache = useCallback((): { data: CryptoData[] | null; lastUpdate: string } => {
     try {
       const cached = localStorage.getItem("cryptoData")
@@ -280,7 +295,6 @@ export default function Component() {
     }
   }, [])
 
-  // Função principal para buscar dados
   const updateCryptoData = useCallback(
     async (showLoading = false) => {
       if (showLoading) {
@@ -320,7 +334,6 @@ export default function Component() {
       } catch (error) {
         console.error("Erro ao buscar dados:", error)
 
-        // Tentar carregar do cache primeiro
         const { data: cachedData, lastUpdate } = loadFromCache()
 
         if (cachedData && cachedData.length > 0) {
@@ -332,7 +345,6 @@ export default function Component() {
             error: "Usando dados salvos",
           })
         } else {
-          // Se não há cache, usar dados padrão
           const defaultData = getDefaultData()
           setCryptoData(defaultData)
           saveToCache(defaultData)
@@ -348,12 +360,10 @@ export default function Component() {
     [cryptos, saveToCache, loadFromCache],
   )
 
-  // Efeito para carregar dados iniciais
   useEffect(() => {
     let mounted = true
 
     const initializeData = async () => {
-      // Primeiro, carregar dados padrão imediatamente para evitar tela branca
       const defaultData = getDefaultData()
       if (mounted) {
         setCryptoData(defaultData)
@@ -364,7 +374,6 @@ export default function Component() {
         }))
       }
 
-      // Tentar carregar do cache se existir
       const { data: cachedData, lastUpdate } = loadFromCache()
       if (cachedData && cachedData.length > 0 && mounted) {
         setCryptoData(cachedData)
@@ -375,7 +384,6 @@ export default function Component() {
         }))
       }
 
-      // Buscar dados atualizados
       if (mounted) {
         await updateCryptoData(true)
       }
@@ -388,11 +396,10 @@ export default function Component() {
     }
   }, [updateCryptoData, loadFromCache])
 
-  // Atualização automática a cada 2 minutos
   useEffect(() => {
     const interval = setInterval(() => {
       updateCryptoData(false)
-    }, 120000) // 2 minutos
+    }, 120000)
 
     return () => clearInterval(interval)
   }, [updateCryptoData])
@@ -404,6 +411,7 @@ export default function Component() {
   const shareToWhatsApp = useCallback(() => {
     const wemixData = cryptoData.find((c) => c.id === "wemix")
     const bitcoinData = cryptoData.find((c) => c.id === "bitcoin")
+    const ethereumData = cryptoData.find((c) => c.id === "ethereum")
 
     const message = `🚀 *CRIPTOS DO VÔ RICA* 🚀
 
@@ -422,6 +430,11 @@ ${formatCurrency(totalPortfolioValue)}
 • Valor Total: ${formatCurrency(bitcoinData?.totalValue || 0)}
 • Variação 24h: ${bitcoinData?.price_change_percentage_24h.toFixed(2)}%
 
+⚡ *ETHEREUM*
+• Preço: ${formatCurrency(ethereumData?.current_price || 0)}
+• Valor Total: ${formatCurrency(ethereumData?.totalValue || 0)}
+• Variação 24h: ${ethereumData?.price_change_percentage_24h.toFixed(2)}%
+
 🕐 Última atualização: ${connectionStatus.lastUpdate ? formatTime(connectionStatus.lastUpdate) : "N/A"}`
 
     const encodedMessage = encodeURIComponent(message)
@@ -429,7 +442,6 @@ ${formatCurrency(totalPortfolioValue)}
     window.open(whatsappUrl, "_blank")
   }, [cryptoData, totalPortfolioValue, connectionStatus.lastUpdate])
 
-  // Função para atualização manual
   const handleManualRefresh = useCallback(() => {
     updateCryptoData(true)
   }, [updateCryptoData])
@@ -455,7 +467,6 @@ ${formatCurrency(totalPortfolioValue)}
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Floating Share Button */}
       <Button
         onClick={shareToWhatsApp}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-400 hover:to-green-500 shadow-lg hover:shadow-green-500/25 transition-all duration-300 hover:scale-110"
@@ -464,7 +475,6 @@ ${formatCurrency(totalPortfolioValue)}
         <Share2 className="h-6 w-6" />
       </Button>
 
-      {/* Floating Refresh Button */}
       <Button
         onClick={handleManualRefresh}
         disabled={connectionStatus.isLoading}
@@ -474,7 +484,6 @@ ${formatCurrency(totalPortfolioValue)}
         <RefreshCw className={`h-6 w-6 ${connectionStatus.isLoading ? "animate-spin" : ""}`} />
       </Button>
 
-      {/* Connection Status */}
       <div className="fixed top-4 right-4 z-40">
         <div
           className={`flex items-center space-x-2 px-3 py-2 rounded-full text-xs font-mono ${
@@ -502,7 +511,6 @@ ${formatCurrency(totalPortfolioValue)}
         )}
       </div>
 
-      {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div
@@ -515,7 +523,6 @@ ${formatCurrency(totalPortfolioValue)}
         ></div>
       </div>
 
-      {/* Header */}
       <header className="relative z-10 border-b border-gray-800/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center mb-6">
@@ -537,11 +544,9 @@ ${formatCurrency(totalPortfolioValue)}
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative z-10 container mx-auto px-4 py-12">
         {!selectedCrypto ? (
           <>
-            {/* Portfolio Overview */}
             <div className="mb-12">
               <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:bg-gray-900/70 transition-all duration-300">
                 <CardHeader className="text-center">
@@ -562,7 +567,6 @@ ${formatCurrency(totalPortfolioValue)}
               </Card>
             </div>
 
-            {/* Crypto Cards */}
             <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               {cryptoData.map((crypto) => {
                 const isPositive = crypto.price_change_percentage_24h >= 0
@@ -572,7 +576,6 @@ ${formatCurrency(totalPortfolioValue)}
                     key={crypto.id}
                     className="bg-gray-900/30 border-gray-800 backdrop-blur-sm hover:bg-gray-900/50 transition-all duration-300 hover:scale-105 hover:border-cyan-500/50 group relative"
                   >
-                    {/* Live indicator */}
                     <div className="absolute top-4 right-4">
                       <div
                         className={`w-2 h-2 rounded-full ${
@@ -589,6 +592,13 @@ ${formatCurrency(totalPortfolioValue)}
                               <Bitcoin className="h-10 w-10 text-orange-400 group-hover:text-orange-300 transition-colors" />
                               <div className="absolute inset-0 h-10 w-10 text-orange-400 animate-pulse opacity-30">
                                 <Bitcoin className="h-10 w-10" />
+                              </div>
+                            </div>
+                          ) : crypto.symbol === "ETH" ? (
+                            <div className="relative">
+                              <Zap className="h-10 w-10 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                              <div className="absolute inset-0 h-10 w-10 text-blue-400 animate-pulse opacity-30">
+                                <Zap className="h-10 w-10" />
                               </div>
                             </div>
                           ) : (
@@ -657,7 +667,6 @@ ${formatCurrency(totalPortfolioValue)}
             </div>
           </>
         ) : (
-          /* Crypto Detail View */
           <CryptoDetailView
             crypto={cryptoData.find((c) => c.id === selectedCrypto)!}
             onBack={() => setSelectedCrypto(null)}
@@ -666,7 +675,6 @@ ${formatCurrency(totalPortfolioValue)}
         )}
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 mt-16 py-8 text-center text-gray-500 border-t border-gray-800/50">
         <div className="font-mono">
           <p>© 2025 CRIPTOS DO VÔ RICA</p>
@@ -687,13 +695,13 @@ function CryptoDetailView({
   connectionStatus: ConnectionStatus
 }) {
   const chartData = useMemo(
-    () => generateChartData(crypto.current_price, crypto.id === "bitcoin" ? 0.05 : 0.15),
+    () =>
+      generateChartData(crypto.current_price, crypto.id === "bitcoin" ? 0.05 : crypto.id === "ethereum" ? 0.1 : 0.15),
     [crypto.current_price, crypto.id],
   )
 
   return (
     <div className="space-y-8">
-      {/* Back Button */}
       <Button
         onClick={onBack}
         variant="outline"
@@ -702,11 +710,12 @@ function CryptoDetailView({
         ← VOLTAR
       </Button>
 
-      {/* Crypto Header */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center mb-4">
           {crypto.symbol === "BTC" ? (
             <Bitcoin className="h-16 w-16 text-orange-400 mr-4" />
+          ) : crypto.symbol === "ETH" ? (
+            <Zap className="h-16 w-16 text-blue-400 mr-4" />
           ) : (
             <Coins className="h-16 w-16 text-purple-400 mr-4" />
           )}
@@ -742,7 +751,6 @@ function CryptoDetailView({
         )}
       </div>
 
-      {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-gray-900/50 border-gray-800">
           <CardHeader className="pb-2">
@@ -783,7 +791,6 @@ function CryptoDetailView({
         </Card>
       </div>
 
-      {/* Charts */}
       <Tabs defaultValue="price" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-gray-900/50 border-gray-800">
           <TabsTrigger value="price" className="font-mono data-[state=active]:bg-cyan-600">

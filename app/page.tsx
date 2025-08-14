@@ -63,7 +63,7 @@ const CRYPTO_CONFIG = [
     id: "ethereum",
     name: "Ethereum",
     symbol: "ETH",
-    amount: 0.0060,
+    amount: 0.0061,
     displayAmount: "0,0053",
     coinCapId: "ethereum",
     cryptoCompareSymbol: "ETH",
